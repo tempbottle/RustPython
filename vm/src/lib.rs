@@ -25,7 +25,7 @@ extern crate rustpython_parser;
 #[macro_use]
 mod macros;
 
-mod builtins;
+pub mod builtins;
 pub mod bytecode;
 pub mod compile;
 pub mod eval;

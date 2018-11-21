@@ -12,11 +12,12 @@ use clap::{App, Arg};
 use rustpython_parser::parser;
 use rustpython_vm::obj::objstr;
 use rustpython_vm::print_exception;
-use rustpython_vm::pyobject::{AttributeProtocol, PyObjectRef, PyResult};
+use rustpython_vm::pyobject::{AttributeProtocol, PyContext, PyObjectRef, PyResult};
 use rustpython_vm::VirtualMachine;
-use rustpython_vm::{compile, import};
+use rustpython_vm::{builtins, compile, import};
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
+use std::collections::HashMap;
 use std::path::Path;
 use std::path::PathBuf;
 
@@ -49,7 +50,10 @@ fn main() {
         .get_matches();
 
     // Construct vm:
-    let mut vm = VirtualMachine::new();
+    let ctx = PyContext::new();
+    let mut overrides = HashMap::new();
+    let builtins = builtins::make_module(&ctx, overrides);
+    let mut vm = VirtualMachine::new(ctx, builtins);
 
     // Figure out if a -c option was given:
     let result = if let Some(command) = matches.value_of("c") {

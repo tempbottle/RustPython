@@ -8,7 +8,6 @@ extern crate rustpython_parser;
 
 use std::collections::hash_map::HashMap;
 
-use super::builtins;
 use super::bytecode;
 use super::frame::Frame;
 use super::obj::objcode::copy_code;
@@ -40,9 +39,7 @@ pub struct VirtualMachine {
 
 impl VirtualMachine {
     /// Create a new `VirtualMachine` structure.
-    pub fn new() -> VirtualMachine {
-        let ctx = PyContext::new();
-        let builtins = builtins::make_module(&ctx, HashMap::new());
+    pub fn new(ctx: PyContext, builtins: PyObjectRef) -> VirtualMachine {
         let sysmod = sysmodule::mk_module(&ctx);
         // Add builtins as builtins module:
         // sysmod.get_attr("modules").unwrap().set_item("builtins", builtins.clone());

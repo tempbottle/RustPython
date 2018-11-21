@@ -735,6 +735,12 @@ fn builtin_zip(vm: &mut VirtualMachine, args: PyFuncArgs) -> PyResult {
 
 // builtin___import__
 
+/// Build the builtin module,
+///
+/// * ctx: The Python Context
+/// * builtin_overrides: A HashMap that contains (builtin item name, PyObjectRef to that item),
+///     which will insert or update the builtin dict. builtin_overrides can be used for example to
+///     override the `print` function in WebAssembly builds so it prints to console.log
 pub fn make_module(ctx: &PyContext, builtin_overrides: HashMap<String, PyObjectRef>) -> PyObjectRef {
     // scope[String::from("print")] = print;
     let mut dict = HashMap::new();
