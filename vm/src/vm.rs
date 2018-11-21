@@ -42,7 +42,7 @@ impl VirtualMachine {
     /// Create a new `VirtualMachine` structure.
     pub fn new() -> VirtualMachine {
         let ctx = PyContext::new();
-        let builtins = builtins::make_module(&ctx);
+        let builtins = builtins::make_module(&ctx, HashMap::new());
         let sysmod = sysmodule::mk_module(&ctx);
         // Add builtins as builtins module:
         // sysmod.get_attr("modules").unwrap().set_item("builtins", builtins.clone());

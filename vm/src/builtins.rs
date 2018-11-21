@@ -735,7 +735,7 @@ fn builtin_zip(vm: &mut VirtualMachine, args: PyFuncArgs) -> PyResult {
 
 // builtin___import__
 
-pub fn make_module(ctx: &PyContext) -> PyObjectRef {
+pub fn make_module(ctx: &PyContext, builtin_overrides: HashMap<String, PyObjectRef>) -> PyObjectRef {
     // scope[String::from("print")] = print;
     let mut dict = HashMap::new();
     //set __name__ fixes: https://github.com/RustPython/RustPython/issues/146
@@ -840,6 +840,10 @@ pub fn make_module(ctx: &PyContext) -> PyObjectRef {
         ctx.exceptions.value_error.clone(),
     );
 
+    for (name, py_object) in builtin_overrides {
+        dict.insert(name, py_object);
+    }
+
     let d2 = PyObject::new(PyObjectKind::Dict { elements: dict }, ctx.type_type());
     let scope = PyObject::new(
         PyObjectKind::Scope {
@@ -896,4 +900,27 @@ pub fn builtin_build_class_(vm: &mut VirtualMachine, mut args: PyFuncArgs) -> Py
     )?;
 
     vm.call_method(&metaclass, "__call__", vec![name_arg, bases, namespace])
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use super::super::pyobject::PyContext;
+
+    #[test]
+    fn test_make_module() {
+        let ctx = PyContext::new();
+        let builtin_module = make_module(&ctx, HashMap::new());
+        assert!(builtin_module.get_attr("print").is_some());
+    }
+
+    #[test]
+    fn test_make_module_override() {
+        let ctx = PyContext::new();
+        let mut overrides = HashMap::new();
+        overrides.insert(String::from("test_function"), ctx.object());
+        let builtin_module = make_module(&ctx, overrides);
+        assert!(builtin_module.get_attr("test_function").is_some());
+    }
+
 }
